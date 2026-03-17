@@ -1,0 +1,1 @@
+ALTER TABLE public.article_chat_gpt_parsed_data ALTER COLUMN parsed_response DROP NOT NULL;
