@@ -1,0 +1,71 @@
+name: "mara-recommendation-flow"
+description: "Conversational lighting product recommendation flow with constraint tracking and memory-aware ranking."
+public: true
+definition:
+  version: v1
+  environment: ambient
+
+  components:
+    - name: "extract_constraints"
+      type: AgentComponent
+      prompt_id: "extract_prompt"
+      inputs:
+        - "context:user_message"
+        - "context:conversation_history"
+      ui_log_events:
+        - on_agent_final_answer
+
+    - name: "recommend_products"
+      type: AgentComponent
+      prompt_id: "recommend_prompt"
+      inputs:
+        - "context:constraints"
+        - "context:user_preferences"
+        - "context:user_message"
+      ui_log_events:
+        - on_agent_final_answer
+
+  prompts:
+    - prompt_id: "extract_prompt"
+      name: "Constraint Extractor"
+      prompt_template:
+        system: |
+          You are the constraint extraction module of MARA.
+          Extract hard constraints (budget, material, size, IP rating) and
+          soft preferences (style, mood, room type) from the user message.
+          Return structured JSON with fields: budget_max, material, kelvin_range,
+          mounting, indoor, outdoor, style, mood.
+        user: |
+          User message: {{user_message}}
+          Conversation history: {{conversation_history}}
+        placeholder: history
+      unit_primitives: []
+      params:
+        timeout: 60
+
+    - prompt_id: "recommend_prompt"
+      name: "Product Recommender"
+      prompt_template:
+        system: |
+          You are MARA, a Memory-Aware Retail Agent. Given the extracted
+          constraints and user preferences, recommend 3-5 lighting products
+          from the catalog. Always respect hard constraints. Explain why each
+          product matches the user's needs. Include price (CHF), wattage,
+          kelvin, and mounting type for each recommendation.
+        user: |
+          Constraints: {{constraints}}
+          Preferences: {{user_preferences}}
+          User message: {{user_message}}
+        placeholder: history
+      unit_primitives: []
+      params:
+        timeout: 120
+
+  routers:
+    - from: "extract_constraints"
+      to: "recommend_products"
+    - from: "recommend_products"
+      to: "end"
+
+  flow:
+    entry_point: "extract_constraints"
