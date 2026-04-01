@@ -25,7 +25,7 @@ from dotenv import load_dotenv
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PayloadSchemaType, PointStruct, VectorParams
 
-from embeddings import embed_batch
+from embeddings import describe_embedding_backend, embed_batch, validate_embedding_config
 
 env_path = Path(__file__).resolve().parent / ".env"
 load_dotenv(dotenv_path=env_path)
@@ -413,6 +413,9 @@ def main() -> None:
     print("=" * 50)
     print("  MARA — Qdrant Setup")
     print("=" * 50 + "\n")
+
+    validate_embedding_config()
+    print(f"Embedding backend: {describe_embedding_backend()}\n")
 
     client = connect()
 

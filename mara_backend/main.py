@@ -27,7 +27,7 @@ from user_memory import (
     get_user_context,
     delete_all_user_memory,
 )
-from embeddings import embed
+from embeddings import describe_embedding_backend, embed, validate_embedding_config
 
 
 MAX_HISTORY_TURNS = 6  # keep last 6 exchanges (12 messages) in context
@@ -177,6 +177,13 @@ app.add_middleware(
     allow_methods     = ["*"],
     allow_headers     = ["*"],
 )
+
+
+@app.on_event("startup")
+async def startup_checks() -> None:
+    """Validate critical runtime integrations before serving traffic."""
+    validate_embedding_config()
+    print(f"[startup] Embeddings ready via {describe_embedding_backend()}")
 
 # In-memory state for the current process. Persistent memory lives in Qdrant.
 constraints_store:  dict[str, UserConstraints] = {}
