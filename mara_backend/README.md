@@ -1,3 +1,13 @@
+---
+title: MARA Backend
+emoji: 💡
+colorFrom: yellow
+colorTo: orange
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # MARA
 
 MARA is a memory-augmented retail agent for lighting search. It combines vector retrieval, persistent user memory, and hard-constraint enforcement so recommendations stay relevant across sessions.
