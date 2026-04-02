@@ -15,6 +15,7 @@ Standard retrieval ranks products by similarity only. MARA adds:
 - `Supabase` is the source of truth for the catalog
 - `extract_supabase_catalog.py` normalizes that catalog into MARA's canonical schema
 - `Qdrant` stores retrieval-optimized product vectors and user memory
+- a dedicated Hugging Face TEI endpoint generates all embeddings remotely
 - `FastAPI` orchestrates retrieval, memory lookup, and response generation
 - `Groq / Llama 3.3` generates the natural-language reply
 
@@ -25,6 +26,7 @@ python3.11 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 cp .env_example .env
+# Fill in HF_EMBEDDING_ENDPOINT_URL with your dedicated TEI endpoint URL first.
 python extract_supabase_catalog.py --output catalog_export.json
 python setup_qdrant.py
 python -m uvicorn main:app --reload --port 8001
@@ -37,9 +39,17 @@ QDRANT_URL=https://your-qdrant-cluster-url:6333
 QDRANT_API_KEY=your_qdrant_api_key
 GROQ_API_KEY=gsk_your_groq_api_key
 HF_TOKEN=hf_your_huggingface_token
+HF_EMBEDDING_ENDPOINT_URL=https://your-dedicated-tei-endpoint.endpoints.huggingface.cloud
+HF_EMBED_TIMEOUT_SEC=120
+HF_EMBED_BATCH_SIZE=64
+HF_EMBED_MAX_RETRIES=2
 SUPABASE_URL=https://your-project-ref.supabase.co
 SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
+
+`HF_EMBEDDING_ENDPOINT_URL` must point to your own dedicated Hugging Face TEI
+endpoint. The backend no longer downloads or runs `sentence-transformers`
+locally, and it does not fall back to shared inference APIs or local models.
 
 ## API
 
@@ -55,7 +65,7 @@ SUPABASE_ANON_KEY=your_supabase_anon_key
 - `main.py` FastAPI application
 - `mara_engine.py` retrieval, filtering, and reranking
 - `user_memory.py` user memory persistence and retrieval
-- `embeddings.py` embedding helpers
+- `embeddings.py` remote TEI embedding helpers
 - `extract_supabase_catalog.py` catalog extraction and normalization
 - `setup_qdrant.py` Qdrant indexing
 - `CATALOG_SCHEMA.md` canonical catalog schema

@@ -72,7 +72,7 @@ QUERIES = [
 
 
 def step3_semantic(client: QdrantClient) -> list[list[float]]:
-    from embeddings import embed  # local import — loads model once
+    from embeddings import embed
 
     print(f"\n{SEP}")
     print("STEP 3 — Semantic Search  (soft_preferences, top-3 per query)")
@@ -186,9 +186,14 @@ def step5_field_stats(client: QdrantClient) -> None:
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main() -> None:
+    from embeddings import describe_embedding_backend, validate_embedding_config
+
     print("=" * 60)
     print("  MARA Embedding Quality Audit")
     print("=" * 60)
+
+    validate_embedding_config()
+    print(f"  Embedding backend: {describe_embedding_backend()}")
 
     client = connect()
 

@@ -19,7 +19,7 @@ The backend is a FastAPI app backed by Qdrant Cloud. The frontend lives in
 |------|--------------|
 | `main.py` | FastAPI app — `/constraints`, `/browse`, `/chat`, debug routes |
 | `mara_engine.py` | Retrieval + reranking: constraint filter → preference boost → decay |
-| `embeddings.py` | `BAAI/bge-large-en-v1.5` (1024-dim). `embed()` adds BGE prefix for queries; `embed_batch()` does not (correct asymmetric search) |
+| `embeddings.py` | Remote Hugging Face TEI client for `BAAI/bge-large-en-v1.5` (1024-dim). `embed()` adds the BGE prefix for queries; `embed_batch()` does not |
 | `setup_qdrant.py` | Creates Qdrant collections, indexes catalog, creates numeric payload indices |
 | `enrich_products.py` | Backfills `style`/`mood`/`finish` on existing payloads — no re-embedding |
 | `user_memory.py` | Reads/writes user memory (structural / semantic / episodic) to Qdrant |
@@ -57,7 +57,7 @@ final_score = (similarity * decay(hard, 0)) * constraint_weight
 ```bash
 source .venv/bin/activate
 uvicorn main:app --reload        # FastAPI on :8000
-python3.11 setup_qdrant.py       # re-index (re-downloads BGE model on first run)
+python3.11 setup_qdrant.py       # re-index via the configured HF TEI endpoint
 python3.11 enrich_products.py    # backfill style/mood/finish after re-index
 ```
 
