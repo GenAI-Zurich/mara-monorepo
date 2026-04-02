@@ -60,7 +60,7 @@ The backend is built with **Python/FastAPI** and utilizes a **dual-collection Qd
 
 ### 1. Clone & Environment Setup
 ```bash
-git clone <repository-url>
+git clone  <repository-url>
 cd Mara-cluster/mara_env
 pip install -r requirements.txt # Or install manually: fastapi qdrant-client sentence-transformers python-dotenv requests uvicorn
 ```
